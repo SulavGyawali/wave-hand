@@ -59,7 +59,7 @@ def say_name(name):
 
 def video(frame, name, people):
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    hands = hand_cascade.detectMultiScale(gray, 1.3, 5)
+    hands = hand_cascade.detectMultiScale(gray, 1.5, 5)
 
     faces = face_cascade.detectMultiScale(gray, 1.3, 5)
     for x, y, w, h in faces:
@@ -97,7 +97,7 @@ def main():
                     Thread(target=face, args=(rgb,)).start()
                 except ValueError:
                     pass
-            elif counter % 100 == 0:
+            elif counter % 100 ==0:
                 people = known_face_names.copy()
             counter += 1
 
