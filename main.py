@@ -4,19 +4,27 @@ import face_recognition
 import os
 from threading import Thread
 
-sulav_face = face_recognition.load_image_file("faces/sulav.jpg")
-sulav_encoding = face_recognition.face_encodings(sulav_face)[0]
+known_face_encoding = []
+known_face_names = []
 
-kavi_image = face_recognition.load_image_file("faces/kavi.jpg")
-kavi_encoding = face_recognition.face_encodings(kavi_image)[0]
+file_list = os.listdir("faces")
+with open("faces.txt", "w+") as f:
+    for files in file_list:
+        if files.startswith("."):
+            continue
+        f.write(files + "\n")
 
-suku_image = face_recognition.load_image_file("faces/suku.jpg")
-suku_encoding = face_recognition.face_encodings(suku_image)[0]
+with open("faces.txt", "r+") as f:
+    images = f.readlines()
+    for image in images:
+        image = image.split("\n")[0]
+        new_face = face_recognition.load_image_file(f"faces/{image}")
+        new_encoding = face_recognition.face_encodings(new_face)[0]
 
-known_face_encoding = [sulav_encoding, kavi_encoding, suku_encoding]
-known_face_names = ["Sulav", "Kavi", "Suku"]
+        known_face_encoding.append(new_encoding)
+        name = image.split(".")[0]
+        known_face_names.append(name)
 
-people = known_face_names.copy()
 
 face_locations = []
 face_encodings = []
@@ -25,7 +33,6 @@ hand_cascade = cv2.CascadeClassifier("palm.xml")
 face_cascade = cv2.CascadeClassifier(
     cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
 )
-
 
 name = None
 
@@ -50,7 +57,7 @@ def say_name(name):
     os.system(f"say hey {name} how are you?")
 
 
-def video(frame, name):
+def video(frame, name, people):
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     hands = hand_cascade.detectMultiScale(gray, 1.3, 5)
 
@@ -79,18 +86,22 @@ def video(frame, name):
 def main():
     cap = cv2.VideoCapture(0)
     counter = 0
+    people = known_face_names.copy()
+
     while True:
         ret, frame = cap.read()
         rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         if ret:
-            if counter % 50 == 0:
+            if counter % 30 == 0:
                 try:
                     Thread(target=face, args=(rgb,)).start()
                 except ValueError:
                     pass
+            elif counter % 100 == 0:
+                people = known_face_names.copy()
             counter += 1
 
-        video(frame, name)
+        video(frame, name, people)
 
         if cv2.waitKey(1) == ord("q"):
             break
