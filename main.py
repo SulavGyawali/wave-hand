@@ -10,7 +10,10 @@ known_face_encoding = []
 known_face_names = []
 
 def load_faces():
-    file_list = os.listdir("faces")
+    try:
+        file_list = os.listdir("faces")
+    except FileNotFoundError:
+        os.system("mkdir faces")
     with open("faces.txt", "w+") as f:
         for files in file_list:
             if files.startswith("."):
@@ -100,14 +103,15 @@ def face(rgb):
 
     for face_encoding in face_encodings:
         matches = face_recognition.compare_faces(known_face_encoding, face_encoding)
-        face_distance = face_recognition.face_distance(
-            known_face_encoding, face_encoding
-        )
-        best_match_index = np.argmin(face_distance)
+        if matches:
+            face_distance = face_recognition.face_distance(
+                known_face_encoding, face_encoding
+            )
+            best_match_index = np.argmin(face_distance)
 
-        if matches[best_match_index]:
-            global name
-            name = known_face_names[best_match_index]
+            if matches[best_match_index]:
+                global name
+                name = known_face_names[best_match_index]
 
 
 
