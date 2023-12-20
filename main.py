@@ -14,6 +14,7 @@ def load_faces():
         file_list = os.listdir("faces")
     except FileNotFoundError:
         os.system("mkdir faces")
+        file_list = os.listdir("faces")
     with open("faces.txt", "w+") as f:
         for files in file_list:
             if files.startswith("."):
