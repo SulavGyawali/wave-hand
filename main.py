@@ -5,6 +5,8 @@ import os
 from threading import Thread
 import time
 import speech_recognition
+import gtts
+import playsound
 
 known_face_encoding = []
 known_face_names = []
@@ -48,6 +50,11 @@ negative = ["no","nah","sorry"]
 
 cap = cv2.VideoCapture(0)
 
+def speech(text):
+    tts = gtts.gTTS(text)
+    tts.save("speech.mp3")
+    playsound.playsound("speech.mp3")
+
 def take_speech():
     text = ""
     recognizer = speech_recognition.Recognizer()
@@ -59,16 +66,16 @@ def take_speech():
             text = recognizer.recognize_google(audio)
             text = text.lower()
 
-            os.system(f"say Recognized {text}")
+            speech(f"Recognized {text}")
     except speech_recognition.UnknownValueError:
         recognizer = speech_recognition.Recognizer()
     
     return text
 
 def register():
-    os.system("say please state your name")
+    speech("please state your name")
     name = input("Enter your name: ")
-    os.system("say position yourself and say click to take a picture")
+    speech("position yourself and say click to take a picture")
     response = take_speech()
     if "click" in response.split(" "):
         try:
@@ -79,21 +86,21 @@ def register():
         except:
             pass
     elif response == "":
-        os.system("say I couldnt understand you")
+        speech("I couldnt understand you")
 
 
 def couldnt_recognise():
-    os.system("say Hey! I dont recognise you")
+    speech("Hey! I dont recognise you")
     time.sleep(0.5)
-    os.system("say Would you like to register yourself?")
+    speech("Would you like to register yourself?")
     response = take_speech()
     print(response)
     if any(word in response.split(" ") for word in affermative):
         register()
     elif any(word in response.split(" ") for word in negative):
-        os.system("say Okay!")
+        speech("Okay!")
     else:
-        os.system("say sorry i dont understand you. Please try again!")
+        speech("sorry i dont understand you. Please try again!")
         couldnt_recognise()
 
 recognise = Thread(target=couldnt_recognise)
@@ -117,7 +124,7 @@ def face(rgb):
 
 
 def say_name(name):
-    os.system(f"say hey {name} how are you?")
+    speech(f"hey {name} how are you?")
 
 
 def video(frame, name, people,counter):
